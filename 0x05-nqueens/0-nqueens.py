@@ -1,100 +1,50 @@
 #!/usr/bin/python3
-
-""" N queens Interview Question """
-
-import sys
+"""ALX SE Interview Prep Module."""
+from sys import argv
 
 
-def get_size():
-    """
-    Get the size of the board.
-    """
-    arguments = sys.argv
-    if len(arguments) != 2:
+def n_queen(n):
+    """Return all possible arrange for the n-queen problem."""
+    col = set()
+    pos = set()
+    neg = set()
+    res = []
+    state = []
+
+    def backtrack(r):
+        """Recurse and do the backtracking."""
+        if r == n:
+            res.append([val for val in state])
+        for c in range(n):
+            if c in col or (r + c) in pos or (r - c) in neg:
+                continue
+            col.add(c)
+            pos.add(r + c)
+            neg.add(r - c)
+            state.append([r, c])
+
+            backtrack(r + 1)
+
+            col.remove(c)
+            pos.remove(r + c)
+            neg.remove(r - c)
+            state.pop()
+    backtrack(0)
+    return res
+
+
+def main():
+    if len(argv) != 2:
         print('Usage: nqueens N')
-        sys.exit(1)
-    try:
-        n = int(arguments[1])
-        if n < 4:
-            print('N must be at least 4')
-            sys.exit(1)
-    except ValueError:
-        print('N must be an integer')
-        sys.exit(1)
-    return n
+        exit(1)
+    if not argv[1].isdigit():
+        print('N must be a number')
+        exit(1)
+    if int(argv[1]) < 4:
+        print('N must be at least 4')
+        exit(1)
+    for res in n_queen(int(argv[1])):
+        print(res)
 
 
-def unsafe_position(
-        board,
-        row,
-        col,
-        current) -> bool:
-    """
-    If the queen is in the same column, or in the same diagonal,
-    as any other queen, then it's unsafe
-
-    :param board: the current board
-    :type board: List[List[str]]
-    :param row: the row we're currently on
-    :type row: int
-    :param col: the column we're currently trying to place a queen in
-    :type col: int
-    :param current: the current row we are on
-    :type current: int
-    :return: True or False
-    """
-
-    if (board[row] == col) or \
-        (board[row] == col - row + current) or\
-            (board[row] == row - current + col):
-        return True
-    return False
-
-
-def print_board(board, n):
-    """
-    It takes a board and an n, and returns a list of the
-    coordinates of the queens on the board
-
-    :param board: a list of integers, where each integer
-    represents the column of the queen in that row
-    :param n: the number of queens
-    """
-
-    result = []
-
-    for i in range(n):
-        for j in range(n):
-            if j == board[i]:
-                result.append([i, j])
-    print(result)
-
-
-def fill_positions(board, row,  n):
-    """
-    For each row, try each column, and if it's safe, recurse on the next row
-
-    :param board: the chess board
-    :param row: the row we are currently on
-    :param n: the size of the board
-    """
-
-    if row == n:
-        print_board(board, n)
-    else:
-
-        for j in range(n):
-            is_safe = True
-            for i in range(row):
-                if unsafe_position(board, i, j, row):
-                    is_safe = False
-            if is_safe:
-                board[row] = j
-                fill_positions(board, row + 1, n)
-
-
-if __name__ == '__main__':
-    board_size = get_size()
-    initial_list = [0] * board_size
-    fill_positions(initial_list, 0, board_size)
-
+main()
