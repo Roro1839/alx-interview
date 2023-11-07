@@ -1,50 +1,54 @@
 #!/usr/bin/python3
-"""ALX SE Interview Prep Module."""
-from sys import argv
+"""
+N queens
+"""
+
+import sys
+
+if len(sys.argv) != 2:
+    print('Usage: nqueens N')
+    exit(1)
+
+try:
+    n_q = int(sys.argv[1])
+except ValueError:
+    print('N must be a number')
+    exit(1)
+
+if n_q < 4:
+    print('N must be at least 4')
+    exit(1)
 
 
-def n_queen(n):
-    """Return all possible arrange for the n-queen problem."""
-    col = set()
-    pos = set()
-    neg = set()
-    res = []
-    state = []
-
-    def backtrack(r):
-        """Recurse and do the backtracking."""
-        if r == n:
-            res.append([val for val in state])
-        for c in range(n):
-            if c in col or (r + c) in pos or (r - c) in neg:
-                continue
-            col.add(c)
-            pos.add(r + c)
-            neg.add(r - c)
-            state.append([r, c])
-
-            backtrack(r + 1)
-
-            col.remove(c)
-            pos.remove(r + c)
-            neg.remove(r - c)
-            state.pop()
-    backtrack(0)
-    return res
+def solve_nqueens(n):
+    ''' self descriptive '''
+    if n == 0:
+        return [[]]
+    inner_solution = solve_nqueens(n - 1)
+    return [solution + [(n, i + 1)]
+            for i in range(n_q)
+            for solution in inner_solution
+            if safe_queen((n, i + 1), solution)]
 
 
-def main():
-    if len(argv) != 2:
-        print('Usage: nqueens N')
-        exit(1)
-    if not argv[1].isdigit():
-        print('N must be a number')
-        exit(1)
-    if int(argv[1]) < 4:
-        print('N must be at least 4')
-        exit(1)
-    for res in n_queen(int(argv[1])):
-        print(res)
+def attack_queen(square, queen):
+    '''self descriptive'''
+    (row1, col1) = square
+    (row2, col2) = queen
+    return (row1 == row2) or (col1 == col2) or\
+        abs(row1 - row2) == abs(col1 - col2)
 
 
-main()
+def safe_queen(sqr, queens):
+    '''self descriptive'''
+    for queen in queens:
+        if attack_queen(sqr, queen):
+            return False
+    return True
+
+
+for answer in reversed(solve_nqueens(n_q)):
+    result = []
+    for p in [list(p) for p in answer]:
+        result.append([i - 1 for i in p])
+    print(result)
